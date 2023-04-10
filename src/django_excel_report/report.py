@@ -9,6 +9,7 @@ from .writer import ReportWriter
 class BaseReport(metaclass=ReportWriter):
     fields: str | Iterable[str] = None
     annotations = None
+    useless_field = None
 
     def __init__(self, queryset: QuerySet[Model]):
         self.queryset = queryset
