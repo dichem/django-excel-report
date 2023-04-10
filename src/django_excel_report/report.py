@@ -13,7 +13,7 @@ class BaseReport(metaclass=ReportMeta):
 
     def __init__(self, queryset: QuerySet[Model]):
         if not (queryset.model is self.model):
-            raise ReportError("%s class built fot model %s, not for %s" % self.__class__, self.model, queryset.model)
+            raise ReportError("%s class built for model %s, not for %s" % self.__class__, self.model, queryset.model)
         self.queryset = queryset
 
 
