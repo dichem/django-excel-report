@@ -1,40 +1,29 @@
-from typing import Iterable
+from typing import Iterable, Any
 
 import django.db.models
 from django.db.models import QuerySet, Model
 
-from .writer import ReportWriter
+from src.django_excel_report.writer import ReportMeta, ReportError
 
 
-class BaseReport(metaclass=ReportWriter):
-    fields: str | Iterable[str] = None
+class BaseReport(metaclass=ReportMeta):
+    model: Model = None
+    fields: str | Iterable[str] | dict[str, Any] = None
     annotations = None
 
     def __init__(self, queryset: QuerySet[Model]):
+        if not (queryset.model is self.model):
+            raise ReportError("%s class built for model %s, not for %s" % self.__class__, self.model, queryset.model)
         self.queryset = queryset
-        self.writer = self.__class__.__class__
-        if isinstance(self.fields, str):
-            self.fields = (self.fields, )
-        
-    def generate(self):
-        pass
-
-    def get_queryset(self):
-        return self.queryset
 
 
-class ForeignRelationReportMixin:
-    pass
+class Rep(BaseReport):
+    model = 1
 
 
-class InverseRelationReportMixin:
-    pass
-
-
-class M2mRelationReportMixin:
-    pass
+class R(Rep):
+    model = None
 
 
 if __name__ == "__main__":
-    BaseReport('a')
-django.db.models.Model
+    print(Rep.a)
