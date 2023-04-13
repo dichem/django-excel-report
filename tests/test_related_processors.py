@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from .models import Product, Size, Pic
-from src.django_excel_report.writer.related_processors import parse_relations
+from src.django_excel_report.writer.related_processors import get_report_attributes
 from src.django_excel_report.error import ReportError
 
 
@@ -13,29 +13,29 @@ class DefaultSettingsTests(TestCase):
             p.sizes.add(Size.objects.create(name=i))
 
     def test_find_related_fields(self):
-        prefetch_related_fields, select_related_fields = parse_relations(
+        attributes = get_report_attributes(
             ['name', 'sizes__name', 'sizes__picture__name', 'description__text'], Product
         )
-        self.assertFalse(
-            {'sizes', 'sizes__picture'}.difference(set(prefetch_related_fields.keys()))
+        self.assertSetEqual(
+            attributes["_prefetch_related"], {'sizes', 'sizes__picture'}
         )
-        self.assertFalse(
-            {'description'}.difference(set(select_related_fields.keys()))
+        self.assertSetEqual(
+            attributes["_select_related"], {'description'}
         )
 
     def test_raises_error(self):
         self.assertRaises(
             ReportError,
-            parse_relations,
+            get_report_attributes,
             ['sizes'], Product
         )
         self.assertRaises(
             ReportError,
-            parse_relations,
+            get_report_attributes,
             ['sizes__picture'], Product
         )
         self.assertRaises(
             ReportError,
-            parse_relations,
+            get_report_attributes,
             ['description'], Product
         )
