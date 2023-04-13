@@ -1,12 +1,10 @@
 import django.db.models
 import xlsxwriter
 
-from .related_processors import get_prefetch_related
 from .get_queryset_builder import get_queryset_builder
+from .related_processors import parse_relations
 
-
-class ReportError(Exception):
-    pass
+from ..error import ReportError
 
 
 class ReportMeta(type):
@@ -19,9 +17,7 @@ class ReportMeta(type):
             return super().__new__(cls, name, bases, attrs)
         if attrs["model"] is None:
             raise ReportError("define model attr for %s class" % name)
-
-        attrs["get_queryset"] = get_queryset_builder(
-            attrs[""], attrs[""], attrs["annotations"]
-        )
+            
+        attrs["_prefetch_related"], attrs["_select_related"] = parse_relations(attrs["fields"], attrs["model"])
 
         return super().__new__(cls, name, bases, attrs)
