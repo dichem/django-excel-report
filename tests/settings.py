@@ -6,9 +6,6 @@ DATABASES = {
 }
 
 INSTALLED_APPS = (
-    "django.contrib.contenttypes",
-    "django.contrib.staticfiles",
-    "django.contrib.auth",
     'django_extensions',
     "tests",
 )
