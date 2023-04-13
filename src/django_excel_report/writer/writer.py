@@ -2,13 +2,13 @@ import django.db.models
 import xlsxwriter
 
 from .get_queryset_builder import get_queryset_builder
-from .related_processors import parse_relations
+from .related_processors import get_report_attributes
 
 from ..error import ReportError
 
 
 class ReportMeta(type):
-    def __new__(cls, name, bases, attrs):
+    def __new__(cls, name, bases, attrs: dict):
         """наша цель - принять в метаклассе заданные атрибуты (fields, related fields)
         и на основании их построить класс Report, путём добавления в него нужных методов.
         Обработка заданных параметров заключается в оптимизации запроса (prefetch_related, select_related) и
@@ -18,6 +18,7 @@ class ReportMeta(type):
         if attrs["model"] is None:
             raise ReportError("define model attr for %s class" % name)
             
-        attrs["_prefetch_related"], attrs["_select_related"] = parse_relations(attrs["fields"], attrs["model"])
+        constructed_attrs = get_report_attributes(attrs["fields"], attrs["model"])
+        attrs.update(constructed_attrs)
 
         return super().__new__(cls, name, bases, attrs)
