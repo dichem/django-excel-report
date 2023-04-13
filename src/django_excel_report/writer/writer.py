@@ -1,9 +1,9 @@
 import django.db.models
 import xlsxwriter
 
+from .related_processors import parse_relations
 
-class ReportError(Exception):
-    pass
+from ..error import ReportError
 
 
 class ReportMeta(type):
@@ -17,7 +17,7 @@ class ReportMeta(type):
         if attrs["model"] is None:
             raise ReportError("define model attr for %s class" % name)
 
-        attrs["preferch_related"] = get_prefetch_relater(attrs["model"], attrs["prefetch_related"])
+        attrs["_prefetch_related"], attrs["_select_related"] = parse_relations(attrs["fields"], attrs["model"])
 
         attrs["a"] = 'aaaa'
         return super().__new__(cls, name, bases, attrs)
