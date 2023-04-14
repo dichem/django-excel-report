@@ -72,7 +72,7 @@ def get_report_attributes(fields: Iterable[str], model: Type[models.Model]) -> d
         for data in reverse_access_methods[::-1]:
             field_accessor = data['method'](data['field'], field_accessor)
 
-        attributes[f"get_{field}"] = field_accessor
+        attributes[f"get_{field}"] = Accessors.GET_VALUES_LIST(field_accessor)
 
     attributes["_prefetch_related"] = prefetch_related_fields
     attributes["_select_related"] = select_related_fields
