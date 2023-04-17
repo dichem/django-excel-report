@@ -1,6 +1,7 @@
 from typing import Iterable, Type, Callable
 
 from django.db import models
+from django.db.models.query_utils import DeferredAttribute
 from django.db.models.fields.related_descriptors import (
     ManyToManyDescriptor,
     ReverseManyToOneDescriptor,
@@ -34,33 +35,43 @@ def get_report_attributes(fields: Iterable[str], model: Type[models.Model]) -> d
         parsed_field = field.split('__')
         relation, prefetch_condition = "", 0
         related_field = try_field = ""
-        next_model = model
+        current_model = model
         reverse_access_methods = []
         while parsed_field:
             try_field = parsed_field.pop(0)
-            descriptor = getattr(next_model, try_field, None)
+            descriptor = getattr(current_model, try_field, None)
             if isinstance(descriptor, tuple(PREFETCH_DESCRIPTORS_ATTRS.keys())):
                 prefetch_condition = 1
-                next_model = PREFETCH_DESCRIPTORS_ATTRS[type(descriptor)](descriptor)
+                current_model = PREFETCH_DESCRIPTORS_ATTRS[type(descriptor)](descriptor)
 
                 reverse_access_methods.append({'field': try_field, 'method': Accessors.M2M})
 
             elif isinstance(descriptor, tuple(TO_SQL_JOIN_DESCRIPTORS.keys())):
-                next_model = TO_SQL_JOIN_DESCRIPTORS[type(descriptor)](descriptor)
+                current_model = TO_SQL_JOIN_DESCRIPTORS[type(descriptor)](descriptor)
 
                 reverse_access_methods.append({'field': try_field, 'method': Accessors.FK})
 
-            else:
+            elif isinstance(descriptor, (DeferredAttribute, property)):
                 related_field = try_field
                 reverse_access_methods.append({'field': try_field, 'method': Accessors.FIELD})
-                break
+                if not parsed_field:
+                    break
+                else:
+                    raise ReportError("Поле %s модели %s не имеет связи к %s" %
+                                      (related_field, current_model, parsed_field.pop(0)))
+
+            elif descriptor is None:
+                getattr(current_model, try_field)
+
+            else:
+                raise ReportError("Неправильно указано поле %s" % field)
 
             relation += "__%s" % try_field
 
         if not related_field:
             raise ReportError("Не удаётся найти поле '%s' в связанном объекте. Быть может, "
                               "если вы имели ввиду модель %s, необходимо указать конкретное поле "
-                              "(%s__name_of_field)" % (try_field, next_model, field))
+                              "(%s__name_of_field)" % (try_field, current_model, field))
 
         if prefetch_condition and relation:
             prefetch_related_fields.add(relation.strip('__'))

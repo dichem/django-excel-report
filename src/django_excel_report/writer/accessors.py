@@ -5,8 +5,8 @@ from django.db.models import Model
 def get_field(field: str) -> Callable:
     def func(self, obj: Model, from_iterator=False):
         if from_iterator:
-            return getattr(obj, field)
-        return [getattr(obj, field)]
+            return getattr(obj, field, "")
+        return [getattr(obj, field, "")]
     return func
 
 

@@ -1,3 +1,5 @@
 django>=3
 xlsxwriter~=3.0.3
 setuptools==67.6.1
+django-extensions==3.2.1
+notebook==6.5.4
