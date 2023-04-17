@@ -1,5 +1,6 @@
 from django.test import TestCase
 
+from src.django_excel_report.error import ReportError
 from .models import Product, Size, Pic
 from src.django_excel_report.report import BaseReport
 
@@ -17,7 +18,7 @@ class DefaultSettingsTests(TestCase):
 
         class ReportClass(BaseReport):
             model = Product
-            fields = ['name', 'sizes__name', 'sizes__picture__name', 'description__text']
+            fields = ['name', 'sizes__name', 'sizes__picture__img', 'description__text']
         cls.report_class = ReportClass
 
         class EmptyRelatedClass(BaseReport):
@@ -36,8 +37,19 @@ class DefaultSettingsTests(TestCase):
     def test_has_accessor_methods(self):
         self.assertIsNotNone(getattr(self.report_class, 'get_name', None))
         self.assertIsNotNone(getattr(self.report_class, 'get_sizes__name', None))
-        self.assertIsNotNone(getattr(self.report_class, 'get_sizes__picture__name', None))
+        self.assertIsNotNone(getattr(self.report_class, 'get_sizes__picture__img', None))
         self.assertIsNotNone(getattr(self.report_class, 'get_description__text', None))
 
         self.assertIsNotNone(getattr(self.empty_related_class, 'get_name', None))
         self.assertIsNotNone(getattr(self.empty_related_class, 'get_pk', None))
+
+    def test_metaclass_raises_error(self):
+        def attribute_error_raiser():
+            class BadReport(BaseReport):
+                model = Product
+                fields = ['sizes__asd']
+
+        self.assertRaises(
+            AttributeError,
+            attribute_error_raiser
+        )
