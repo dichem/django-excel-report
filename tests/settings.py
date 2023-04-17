@@ -1,8 +1,11 @@
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",
+        "NAME": ":memory:"
     },
+    'OPTIONS': {
+        'debug': True,
+    }
 }
 
 INSTALLED_APPS = (
@@ -27,10 +30,11 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'level': 'INFO'
+            'level': 'DEBUG',
         },
         'django.db.backends': {
-            'level': 'DEBUG',
+            'handlers': ['console'],
+            'level': 'DEBUG'
         },
     },
     'root': {
