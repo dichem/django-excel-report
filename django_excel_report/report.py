@@ -1,9 +1,8 @@
 from typing import Iterable, Any
 
-import django.db.models
 from django.db.models import QuerySet, Model
 
-from src.django_excel_report.writer import ReportMeta
+from .writer import ReportMeta, Writer
 from .error import ReportError
 
 
@@ -24,6 +23,14 @@ class BaseReport(metaclass=ReportMeta):
     def get_queryset(self) -> QuerySet[Model]:
         # annotations do not ready yet
         return self.queryset.select_related(*self._select_related).prefetch_related(*self._prefetch_related)
+
+    def generate(self):
+        writer = Writer("report")
+        writer.write_row([[field] for field in self.fields])
+        for obj in self:
+            writer.write_row(obj)
+        writer.wrap()
+        writer.save()
 
     def __iter__(self):
         for obj in self.get_queryset():

@@ -1,8 +1,7 @@
 from django.test import TestCase
 
-from src.django_excel_report.error import ReportError
 from .models import Product, Size, Pic
-from src.django_excel_report.report import BaseReport
+from django_excel_report import BaseReport
 
 
 class DefaultSettingsTests(TestCase):

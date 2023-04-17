@@ -19,7 +19,8 @@ def get_m2m_generator(rel: str, other_func) -> Callable:
 
 def get_foreign_field(field: str, other_func) -> Callable:
     def func(self, obj: Model, from_iterator=False) -> Callable:
-        return other_func(self, getattr(obj, field), from_iterator)
+        # if fk is null, get_field anyway returns empty string
+        return other_func(self, getattr(obj, field, ""), from_iterator)
     return func
 
 
@@ -39,7 +40,7 @@ def get_values_list(func):
                 else:
                     values_list.extend(wrapper(self, result=entity))
 
-        return values_list
+        return values_list or [""]
 
     return wrapper
 

@@ -1,8 +1,8 @@
 from django.test import TestCase
 
 from .models import Product, Size, Pic
-from src.django_excel_report.writer.related_processors import get_report_attributes
-from src.django_excel_report.error import ReportError
+from django_excel_report.writer.acessors_builder import get_report_attributes
+from django_excel_report.error import ReportError
 
 
 class DefaultSettingsTests(TestCase):

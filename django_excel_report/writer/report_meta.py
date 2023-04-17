@@ -1,8 +1,4 @@
-import django.db.models
-import xlsxwriter
-
-from .get_queryset_builder import get_queryset_builder
-from .related_processors import get_report_attributes
+from .acessors_builder import get_report_attributes
 
 from ..error import ReportError
 

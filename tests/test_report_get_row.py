@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from src.django_excel_report.report import BaseReport
+from django_excel_report import BaseReport
 from .models import Product, Size, Pic
 
 
