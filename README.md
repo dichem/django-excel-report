@@ -5,6 +5,11 @@ Here is defined models for example:
 from django.db import models
 
 
+class MyFiles(models.Model):
+    file = models.FileField(upload_to='path/to/upload/')
+    description = models.TextField()
+
+
 class M2MRelated(models.Model):
     field = models.TextField()
 
@@ -30,5 +35,10 @@ class MyReport(BaseReport):
 def some_task(**kwargs):
     qs = MyModel.objects.filter(**kwargs)
     report = MyReport(queryset=qs)
-    report.generate()
+    file = report.get_django_file()
+    instance = MyFiles.objects.create(description='description')
+    instance.file.save('report.xlsx', file)
 ```
+
+BaseReport class provides easy way to generate reports with merged cells for related objects:
+<img src="readme_files/report_example.png">

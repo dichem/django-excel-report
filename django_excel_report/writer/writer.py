@@ -1,16 +1,20 @@
+import io
+
 import xlsxwriter
 import math
+
+from django.core.files.base import ContentFile
 
 
 class Writer:
     """Значения ширины и высоты в ячкйках подобраны эмпирически"""
     def __init__(self, sheet):
-        self.workbook = xlsxwriter.Workbook("report.xlsx")
+        self.io = io.BytesIO()
+        self.workbook = xlsxwriter.Workbook(self.io)
         self.sheet = self.workbook.add_worksheet(sheet)
         self.current_row = 0
         self.columns_max_length = {}
         self.format = self.get_format()
-        self.__saved = False
 
     def write_row(self, row: list[list[str]]) -> None:
         lcm = math.lcm(*map(list.__len__, row))
@@ -52,12 +56,11 @@ class Writer:
         for col_number, value in self.columns_max_length.items():
             self.sheet.set_column(col_number, col_number, min(value + 5, 80))
 
-    @property
-    def saved(self):
-        return self.__saved
-
     def save(self):
         self.workbook.close()
+
+    def get_django_file(self) -> ContentFile:
+        return ContentFile(self.io.getvalue())
 
     def get_format(self):
         format_ = self.workbook.add_format()
