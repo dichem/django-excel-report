@@ -1,11 +1,15 @@
+test_files/
+
 *.xlsx
 .idea
 __pycache__/
 *.py[cod]
 *$py.class
+
 *.ipynb_checkpoints
 descriptors.ipynb
 *.ipynb
+
 dist
 build
 django_excel_report.egg-info

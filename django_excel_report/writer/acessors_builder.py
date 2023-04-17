@@ -36,7 +36,7 @@ def get_report_attributes(fields: Iterable[str], model: Type[models.Model]) -> d
         relation, prefetch_condition = "", 0
         related_field = try_field = ""
         current_model = model
-        reverse_access_methods = []
+        reverse_access_methods = []  # sizes__picture__name [] for size in product_obj.sizes.all(): print(size.name)
         while parsed_field:
             try_field = parsed_field.pop(0)
             descriptor = getattr(current_model, try_field, None)
@@ -77,8 +77,8 @@ def get_report_attributes(fields: Iterable[str], model: Type[models.Model]) -> d
             prefetch_related_fields.add(relation.strip('__'))
         elif relation:
             select_related_fields.add(relation.strip('__'))
-
-        field_accessor_data = reverse_access_methods.pop()
+        # sizes__picture__name [] for size in product_obj.sizes.all(): print(size.name)
+        field_accessor_data = reverse_access_methods.pop() # {'field': try_field, 'method': Accessors.FIELD}
         field_accessor = field_accessor_data['method'](field_accessor_data['field'])
         for data in reverse_access_methods[::-1]:
             field_accessor = data['method'](data['field'], field_accessor)

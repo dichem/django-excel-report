@@ -1,6 +1,7 @@
 from typing import Iterable, Any
 
 from django.db.models import QuerySet, Model
+from django.core.files.base import ContentFile
 
 from .writer import ReportMeta, Writer
 from .error import ReportError
@@ -24,13 +25,14 @@ class BaseReport(metaclass=ReportMeta):
         # annotations do not ready yet
         return self.queryset.select_related(*self._select_related).prefetch_related(*self._prefetch_related)
 
-    def generate(self):
-        writer = Writer("report")
+    def get_django_file(self) -> ContentFile:
+        writer = Writer(sheet="report")
         writer.write_row([[field] for field in self.fields])
         for obj in self:
             writer.write_row(obj)
         writer.wrap()
         writer.save()
+        return writer.get_django_file()
 
     def __iter__(self):
         for obj in self.get_queryset():
