@@ -1,4 +1,5 @@
-from typing import Callable, Iterator
+from typing import Callable, Iterator, Iterable
+
 from django.db.models import Model
 
 
@@ -30,7 +31,7 @@ def get_values_list(func):
         if obj:
             result = func(self, obj)
 
-        if isinstance(result, str):
+        if not isinstance(result, Iterable):
             values_list.append(result)
 
         else:
