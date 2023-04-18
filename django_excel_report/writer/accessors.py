@@ -1,4 +1,4 @@
-from typing import Callable, Iterator, Iterable
+from typing import Callable, Iterator, Generator
 
 from django.db.models import Model
 
@@ -26,21 +26,23 @@ def get_foreign_field(field: str, other_func) -> Callable:
 
 
 def get_values_list(func):
-    def wrapper(self, obj=None, result=None):
+    def wrapper(self, obj=None, result=None, recursive_call=False):
         values_list = []
         if obj:
             result = func(self, obj)
 
-        if not isinstance(result, Iterable):
-            values_list.append(result)
+        if not isinstance(result, (list, Generator)):
+            if result is not None:
+                values_list.append(str(result))
 
         else:
             for entity in result:
-                if isinstance(entity, str):
-                    values_list.append(entity)
+                if not isinstance(entity, (list, Generator)) and entity is not None:
+                    values_list.append(str(entity))
                 else:
-                    values_list.extend(wrapper(self, result=entity))
-
+                    values_list.extend(wrapper(self, result=entity, recursive_call=True))
+        if recursive_call:
+            return values_list
         return values_list or [""]
 
     return wrapper
